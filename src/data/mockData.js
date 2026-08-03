@@ -1,0 +1,263 @@
+// 샘플 매장, 업무 요청, 부서 및 부서원 데이터
+
+export const INITIAL_DEPARTMENTS = [
+  { id: "DEP-01", name: "01-임원진" },
+  { id: "DEP-02", name: "02-영업관리팀" },
+  { id: "DEP-04", name: "04-경영지원팀" },
+  { id: "DEP-05", name: "05-재무경리팀" },
+  { id: "DEP-06", name: "06-대외협력팀" },
+  { id: "DEP-07", name: "07-고객지원팀" },
+  { id: "DEP-09", name: "09-자대리점" },
+  { id: "DEP-11", name: "11-총무팀" },
+  { id: "DEP-12", name: "영업 1팀" },
+  { id: "DEP-13", name: "영업 2팀" }
+];
+
+export const INITIAL_USERS = [
+  { id: "U-001", name: "어드민", dept: "01-임원진", role: "어드민", status: "재직" },
+  
+  { id: "U-002", name: "박재형", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  { id: "U-003", name: "이재용", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  { id: "U-004", name: "이희람", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  { id: "U-005", name: "임시사용", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  { id: "U-006", name: "한지훈", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  { id: "U-007", name: "황성준", dept: "02-영업관리팀", role: "사용자", status: "재직" },
+  
+  { id: "U-008", name: "구본훈", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+  { id: "U-009", name: "김강록", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+  { id: "U-010", name: "여승찬", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+  { id: "U-011", name: "최승규", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+  { id: "U-012", name: "한정훈", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+  { id: "U-013", name: "홍성원", dept: "04-경영지원팀", role: "사용자", status: "재직" },
+
+  { id: "U-014", name: "고유진", dept: "05-재무경리팀", role: "사용자", status: "재직" },
+  { id: "U-015", name: "노다영", dept: "05-재무경리팀", role: "사용자", status: "재직" },
+
+  { id: "U-016", name: "서은주", dept: "07-고객지원팀", role: "사용자", status: "재직" },
+  { id: "U-017", name: "최영진", dept: "07-고객지원팀", role: "사용자", status: "재직" }
+];
+
+export const INITIAL_STORES = [
+  {
+    id: "ST-001",
+    bizNo: "316-81-08342",
+    storeName: "주식회사 정우푸드(빙그레)",
+    region: "남양주시",
+    contact: "010-2054-6389",
+    tel: "02-581-4095",
+    homeTel: "031-591-1122",
+    owner: "백태진",
+    address: "경기도 남양주시 미금로 57 빙그레도농2공장 식당",
+    posType: "OKPOS Z-POS 2대 / Win10",
+    registeredAt: "2021-04-15",
+    status: "active",
+    storeStatus: "정상가맹점",
+    salesAgent: "송용현",
+    smsNumber: "010-2054-6389",
+    smsOptOut: false,
+    bizCategory: "음식업 / 구내식당",
+    email: "food@binggrae.co.kr",
+    corpNo: "110111-1234567",
+    homepage: "http://binggrae.co.kr",
+    contractDate: "2021-04-15",
+    contractStatus: "36개월 약정 (자동연장)",
+    vanCompany: "NICE VAN / KCP",
+    monthlyFee: "11,000원 (VAT 포함)",
+    posModel: "OKPOS Z-POS 2대 (임대)",
+    contractMemo: "월 관리비 매월 25일 CMS 자동이체. 핑거패드 1대 무상제공. 계약 중도 해지 시 약정 위약금 발생.",
+    memo: "밴프로는 3168108343_주식회사 정우푸드(빙그레) 검색. 점심시간 (11:30~13:30) 조치 시 유의.",
+    contactsList: [
+      { id: 1, phone: "02-581-4095", dept: "구내식당 대표전화", name: "백태진 대표", regDate: "2021-04-15", memo: "주 연락처 / 영수증 명의자" },
+      { id: 2, phone: "010-2054-6389", dept: "영업관리부", name: "송용현 실장", regDate: "2021-05-10", memo: "POS 및 메뉴 수정 담당" }
+    ]
+  },
+  {
+    id: "ST-002",
+    bizNo: "205-88-03143",
+    storeName: "(주)루미호스피털 종로점",
+    region: "종로구",
+    contact: "010-7776-9476",
+    tel: "02-730-1199",
+    homeTel: "",
+    owner: "김루미",
+    address: "서울특별시 종로구 종로 123 루미빌딩 2층",
+    posType: "OKPOS / Win10",
+    registeredAt: "2024-01-15",
+    status: "active",
+    storeStatus: "정상가맹점",
+    salesAgent: "한정훈",
+    smsNumber: "010-7776-9476",
+    smsOptOut: false,
+    bizCategory: "보건업 / 병의원",
+    email: "contact@rumihospital.com",
+    corpNo: "110111-9876543",
+    homepage: "http://rumihospital.com",
+    contractDate: "2024-01-15",
+    contractStatus: "24개월 약정",
+    vanCompany: "KICC VAN",
+    monthlyFee: "22,000원",
+    posModel: "OKPOS 2대, 핑거패드 1대",
+    contractMemo: "주말 연중무휴 24시간 긴급 지원 계약 포함.",
+    memo: "POS 2대, 핑거패드 1대 운영 중. 주말 연중무휴.",
+    contactsList: [
+      { id: 1, phone: "010-7776-9476", dept: "원무과", name: "김종로 실장", regDate: "2024-01-15", memo: "원무 및 POS 관리" }
+    ]
+  },
+  {
+    id: "ST-003",
+    bizNo: "110-81-99812",
+    storeName: "한주커피 강남본점",
+    region: "강남구",
+    contact: "010-3321-8842",
+    tel: "02-555-4321",
+    homeTel: "",
+    owner: "박한주",
+    address: "서울특별시 강남구 테헤란로 412",
+    posType: "KIMS POS v3.2",
+    registeredAt: "2024-03-20",
+    status: "active",
+    storeStatus: "정상가맹점",
+    salesAgent: "이올리브",
+    smsNumber: "010-3321-8842",
+    smsOptOut: false,
+    bizCategory: "음식점 / 카페",
+    email: "hanju@coffeemain.com",
+    corpNo: "",
+    homepage: "",
+    contractDate: "2024-03-20",
+    contractStatus: "36개월 약정",
+    vanCompany: "NICE VAN",
+    monthlyFee: "33,000원",
+    posModel: "KIMS POS + 키오스크 3대",
+    contractMemo: "배달의민족 API 및 키오스크 연동 수수료 포함.",
+    memo: "키오스크 3대 전용매장, 배달의민족 연동 사용중.",
+    contactsList: [
+      { id: 1, phone: "010-3321-8842", dept: "매장점장", name: "박한주 대표", regDate: "2024-03-20", memo: "매장 긴급 연락처" }
+    ]
+  },
+  {
+    id: "ST-004",
+    bizNo: "302-86-12490",
+    storeName: "성수 버거클럽",
+    region: "성동구",
+    contact: "010-9988-1122",
+    tel: "02-468-9900",
+    homeTel: "",
+    owner: "이성수",
+    address: "서울특별시 성동구 연무장길 45",
+    posType: "EasyPos",
+    registeredAt: "2024-05-10",
+    status: "active",
+    storeStatus: "정상가맹점",
+    salesAgent: "박재형",
+    smsNumber: "010-9988-1122",
+    smsOptOut: false,
+    bizCategory: "음식점 / 수제버거",
+    email: "burger@seongsu.kr",
+    corpNo: "",
+    homepage: "",
+    contractDate: "2024-05-10",
+    contractStatus: "36개월 약정",
+    vanCompany: "KSNET",
+    monthlyFee: "44,000원",
+    posModel: "EasyPos + 테이블오더 18대",
+    contractMemo: "테이블오더 18대 유지보수 계약 포함.",
+    memo: "테이블오더 18대 운영.",
+    contactsList: []
+  },
+  {
+    id: "ST-005",
+    bizNo: "504-87-33211",
+    storeName: "홍대 야키토리 하나",
+    region: "마포구",
+    contact: "010-5544-3322",
+    tel: "02-332-1100",
+    homeTel: "",
+    owner: "최홍대",
+    address: "서울특별시 마포구 어울마당로 88",
+    posType: "ForcePos",
+    registeredAt: "2024-06-01",
+    status: "active",
+    storeStatus: "정상가맹점",
+    salesAgent: "한지훈",
+    smsNumber: "010-5544-3322",
+    smsOptOut: false,
+    bizCategory: "음식점 / 이자카야",
+    email: "",
+    corpNo: "",
+    homepage: "",
+    contractDate: "2024-06-01",
+    contractStatus: "12개월 약정",
+    vanCompany: "NICE VAN",
+    monthlyFee: "15,000원",
+    posModel: "ForcePos 1대",
+    contractMemo: "야간 출동 지원 옵션 적용.",
+    memo: "야간 영업 매장 (18:00 ~ 04:00).",
+    contactsList: []
+  }
+];
+
+export const INITIAL_REQUESTS = [
+  {
+    id: "REQ-20260723-001",
+    storeId: "ST-001",
+    bizNo: "205-88-03143",
+    region: "종로구",
+    storeName: "(주)루미호스피털 종로점",
+    category: "POS 메뉴추가/수정",
+    content: "[1.POS 메뉴추가,수정] 사이드 메뉴 수정으로 연락요청하십니다\n연락처: 010-7776-9476\n담당자: 김종로 실장님",
+    contact: "010-7776-9476",
+    status: "신규",
+    targetTeam: "02-영업관리팀, 한정훈",
+    sender: "karis02 (한정훈)",
+    createdAt: "2026-07-23 10:45:12",
+    updatedAt: "2026-07-23 10:45:12",
+    images: [
+      "https://images.unsplash.com/photo-1556742049-0a67daf407c0?auto=format&fit=crop&w=800&q=80"
+    ],
+    imageCount: 1,
+    priority: "보통",
+    isConfirmed: false,
+    processNote: "",
+    processedBy: ""
+  },
+  {
+    id: "REQ-20260723-002",
+    storeId: "ST-002",
+    bizNo: "110-81-99812",
+    region: "강남구",
+    storeName: "한주커피 강남본점",
+    category: "단말기/VAN 장애",
+    content: "카드 결제 승인 지연 발생 (오류코드 E-402). VAN사 재설정 및 주방프린터 출력 재확인 요청.",
+    contact: "010-3321-8842",
+    status: "진행중",
+    targetTeam: "07-고객지원팀, 서은주",
+    sender: "olive_admin (이올리브)",
+    createdAt: "2026-07-23 09:12:00",
+    updatedAt: "2026-07-23 09:30:15",
+    images: [],
+    imageCount: 0,
+    priority: "긴급",
+    isConfirmed: true,
+    processNote: "NICE VAN 라인 확인 중이며, 원격 연결하여 재부팅 조치 진행 중.",
+    processedBy: "07-고객지원팀 서은주"
+  }
+];
+
+export const TEAMS = [
+  { id: "POS", name: "02-영업관리팀" },
+  { id: "VAN", name: "04-경영지원팀" },
+  { id: "SALES", name: "05-재무경리팀" },
+  { id: "CS", name: "07-고객지원팀" },
+  { id: "DEV", name: "11-총무팀" }
+];
+
+export const CATEGORIES = [
+  "POS 메뉴추가/수정",
+  "단말기/VAN 장애",
+  "영업/계약 변경",
+  "POS 기능요청",
+  "원격 지원 요청",
+  "세금계산서/정산 문의",
+  "기타 문의"
+];
