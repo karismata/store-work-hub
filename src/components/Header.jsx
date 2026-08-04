@@ -19,11 +19,23 @@ export default function Header({
 }) {
   return (
     <header className="header-navbar">
-      {/* Left Brand Title */}
+      {/* Left Brand Title with Version Badge */}
       <div className="brand-section">
-        <div className="brand-logo">
+        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Building2 className="w-5 h-5 text-blue-600" />
           <span>매장 관리 업무 Hub</span>
+          <span style={{
+            fontSize: '11px',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            color: '#3b82f6',
+            fontWeight: 700,
+            letterSpacing: '0.3px',
+            border: '1px solid rgba(59, 130, 246, 0.3)'
+          }}>
+            v1.0.2
+          </span>
         </div>
       </div>
 
