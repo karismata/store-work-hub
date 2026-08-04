@@ -24,10 +24,16 @@ function createWindow() {
     win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  // Explicit Auto Update System for Production Mode
+  // Explicit Auto Update System with GitHub Feed URL
   if (!isDev) {
     try {
       const { autoUpdater } = require('electron-updater');
+
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'karismata',
+        repo: 'store-work-hub'
+      });
 
       autoUpdater.autoDownload = true;
       autoUpdater.autoInstallOnAppQuit = true;
@@ -37,7 +43,7 @@ function createWindow() {
           type: 'info',
           title: '새 버전 업데이트 감지',
           message: `새로운 최신 기능 버전(v${info.version})이 출시되었습니다!`,
-          detail: '최신 기능 패치를 자동으로 다운로드 중입니다. 완료 시 재시작 안내창이 나타납니다.',
+          detail: '최신 기능 패치를 자동으로 다운로드 중입니다. 완료 시 안내창이 나타납니다.',
           buttons: ['확인']
         });
       });
@@ -57,15 +63,15 @@ function createWindow() {
       });
 
       autoUpdater.on('error', (err) => {
-        console.log('AutoUpdater error:', err);
+        console.log('AutoUpdater error:', err.message);
       });
 
-      // Trigger update check on startup
+      // Check for updates on startup
       setTimeout(() => {
-        autoUpdater.checkForUpdates().catch(err => {
+        autoUpdater.checkForUpdatesAndNotify().catch(err => {
           console.log('Auto updater check note:', err);
         });
-      }, 3000);
+      }, 2000);
     } catch (e) {
       console.log('Auto updater init note:', e);
     }
