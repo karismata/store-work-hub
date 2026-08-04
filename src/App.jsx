@@ -166,6 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
+  const CURRENT_APP_VERSION = '1.0.6';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
 
