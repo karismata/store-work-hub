@@ -6,7 +6,8 @@ import {
   Sun,
   Moon,
   UserCheck,
-  Database
+  Database,
+  RefreshCw
 } from 'lucide-react';
 
 export default function Header({ 
@@ -15,7 +16,8 @@ export default function Header({
   onOpenNewRequest, 
   onOpenNewStore,
   onOpenDeptModal,
-  onOpenSupabaseModal
+  onOpenSupabaseModal,
+  onCheckUpdate
 }) {
   return (
     <header className="header-navbar">
@@ -34,13 +36,24 @@ export default function Header({
             letterSpacing: '0.3px',
             border: '1px solid rgba(59, 130, 246, 0.3)'
           }}>
-            v1.0.3
+            v1.0.4
           </span>
         </div>
       </div>
 
       {/* Right Header Actions */}
       <div className="header-actions">
+        {/* Manual Update Check Button */}
+        <button 
+          onClick={onCheckUpdate}
+          className="btn-secondary-action"
+          style={{ borderColor: 'rgba(59, 130, 246, 0.4)', color: '#3b82f6', fontSize: '11px', padding: '3px 8px' }}
+          title="서버의 최신 버전 업데이트 유무 즉시 확인"
+        >
+          <RefreshCw className="w-3.5 h-3.5 text-blue-500" />
+          <span>업데이트 확인</span>
+        </button>
+
         {/* DB Connection Status Button */}
         <button 
           onClick={onOpenSupabaseModal}

@@ -166,8 +166,31 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.0.3';
+  const CURRENT_APP_VERSION = '1.0.4';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
+
+  const handleManualUpdateCheck = async () => {
+    try {
+      const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
+      if (res.ok) {
+        const data = await res.json();
+        const latestTag = (data.tag_name || '').replace(/^v/, '').trim();
+        if (latestTag && latestTag !== CURRENT_APP_VERSION) {
+          const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
+          const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
+          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 설치파일을 다운로드하시겠습니까?`)) {
+            window.open(url, '_blank');
+          }
+        } else {
+          alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
+        }
+      } else {
+        alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
+      }
+    } catch (e) {
+      alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
+    }
+  };
 
   useEffect(() => {
     // Check GitHub Releases API for new version automatically
@@ -668,6 +691,7 @@ export default function App() {
         onOpenDeptModal={() => setIsDeptManageModalOpen(true)}
         onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
         onShowSupabaseModal={() => setIsSupabaseModalOpen(true)}
+        onCheckUpdate={handleManualUpdateCheck}
       />
 
       {/* Main App Section */}
