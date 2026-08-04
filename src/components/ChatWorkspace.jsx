@@ -122,7 +122,7 @@ export default function ChatWorkspace({
       storeName: isWorkRequestMode ? (selectedStore?.storeName || '가맹점') : null,
       bizNo: isWorkRequestMode ? (selectedStore?.bizNo || '') : null,
       status: isWorkRequestMode ? '신규' : null,
-      createdAt: new Date().toLocaleString()
+      createdAt: new Date().toISOString()
     };
 
     onSendMessage(newMsg);
@@ -354,7 +354,15 @@ export default function ChatWorkspace({
                             {msg.senderName} ({msg.senderDept})
                           </span>
                           <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                            {msg.createdAt}
+                            {(() => {
+                              if (!msg.createdAt) return '';
+                              try {
+                                const d = new Date(msg.createdAt);
+                                return isNaN(d.getTime()) ? msg.createdAt : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                              } catch (e) {
+                                return msg.createdAt;
+                              }
+                            })()}
                           </span>
                         </div>
 

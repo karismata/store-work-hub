@@ -493,7 +493,15 @@ export default function App() {
         store_name: newMsg.storeName || null,
         biz_no: newMsg.bizNo || null,
         status: newMsg.status || null,
-        created_at: newMsg.createdAt || new Date().toISOString()
+        created_at: (() => {
+          if (!newMsg.createdAt) return new Date().toISOString();
+          try {
+            const d = new Date(newMsg.createdAt);
+            return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+          } catch (e) {
+            return new Date().toISOString();
+          }
+        })()
       };
 
       const { error: msgErr } = await supabase.from('chat_messages').insert([msgPayload]);
