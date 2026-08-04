@@ -5,7 +5,8 @@ import {
   Store, 
   Sun,
   Moon,
-  UserCheck
+  UserCheck,
+  Database
 } from 'lucide-react';
 
 export default function Header({ 
@@ -13,7 +14,8 @@ export default function Header({
   setTheme,
   onOpenNewRequest, 
   onOpenNewStore,
-  onOpenDeptModal
+  onOpenDeptModal,
+  onOpenSupabaseModal
 }) {
   return (
     <header className="header-navbar">
@@ -27,6 +29,17 @@ export default function Header({
 
       {/* Right Header Actions */}
       <div className="header-actions">
+        {/* DB Connection Status Button */}
+        <button 
+          onClick={onOpenSupabaseModal}
+          className="btn-secondary-action"
+          style={{ borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981', fontSize: '11px', padding: '3px 8px' }}
+          title="Supabase 클라우드 데이터베이스 연동 설정 및 상태 확인"
+        >
+          <Database className="w-3.5 h-3.5 text-emerald-500" />
+          <span>🟢 DB 실시간 연동됨</span>
+        </button>
+
         {/* Dept Manage */}
         <button 
           onClick={onOpenDeptModal}

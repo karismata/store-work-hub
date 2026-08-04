@@ -40,9 +40,11 @@ export default function CreateRoomModal({ isOpen, onClose, users = [], currentUs
       return;
     }
 
-    // Automatically include room creator (id, username, name)
+    // Automatically include room creator (and 'all' for public room if no specific members selected)
     const creatorKeys = [currentUser?.id, currentUser?.username, currentUser?.name].filter(Boolean);
-    const finalMembers = Array.from(new Set([...selectedUsers, ...creatorKeys]));
+    const finalMembers = selectedUsers.length > 0 
+      ? Array.from(new Set([...selectedUsers, ...creatorKeys]))
+      : ['all', ...creatorKeys];
 
     const newRoom = {
       id: `ROOM-${Date.now()}`,

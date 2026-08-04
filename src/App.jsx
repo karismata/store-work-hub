@@ -592,6 +592,7 @@ export default function App() {
           setIsStoreModalOpen(true);
         }}
         onOpenDeptModal={() => setIsDeptManageModalOpen(true)}
+        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
         onShowSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
 
