@@ -166,7 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.1.3';
+  const CURRENT_APP_VERSION = '1.1.4';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
   const [downloadProgressPercent, setDownloadProgressPercent] = useState(0);
@@ -174,12 +174,12 @@ export default function App() {
   const handleManualUpdateCheck = async () => {
     if (window.electronAPI) {
       try {
-        alert('🔍 최신 버전을 검사합니다. 신규 버전이 존재하면 웹브라우저 없이 앱 내부에서 백그라운드 무인 다운로드가 시작됩니다.');
+        setDownloadProgressPercent(1);
         await window.electronAPI.checkForUpdate();
-        return;
       } catch (e) {
         console.warn('Electron updater check note:', e);
       }
+      return;
     }
     try {
       const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
@@ -188,16 +188,8 @@ export default function App() {
         const latestTag = (data.tag_name || '').replace(/^v/, '').trim();
         if (latestTag && latestTag !== CURRENT_APP_VERSION) {
           const installerAsset = data.assets?.find(a => a.name.toLowerCase().includes('setup') && a.name.endsWith('.exe'));
-          const exeAsset = installerAsset || data.assets?.find(a => a.name.endsWith('.exe'));
-          const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
-
-          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 설치파일(v${latestTag})을 다운로드하시겠습니까?`)) {
-            if (window.electronAPI) {
-              window.electronAPI.openExternal(url);
-            } else {
-              window.open(url, '_blank');
-            }
-          }
+          const url = installerAsset ? installerAsset.browser_download_url : data.html_url;
+          window.open(url, '_blank');
         } else {
           alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
         }
