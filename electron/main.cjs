@@ -1,6 +1,21 @@
 const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 
+// Enforce Single Instance Lock: prevents multiple duplicate instances from running
+const gotTheLock = app.requestSingleInstanceLock();
+let mainWindow = null;
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -16,6 +31,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.cjs')
     }
   });
+
+  mainWindow = win;
 
   // Open all external links in system default browser (Chrome/Edge), never white popup window
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -59,7 +76,7 @@ function createWindow() {
       });
 
       ipcMain.handle('quit-and-install', () => {
-        autoUpdater.quitAndInstall(false, true);
+        autoUpdater.quitAndInstall(true, true);
       });
 
       autoUpdater.on('update-available', (info) => {
@@ -76,11 +93,11 @@ function createWindow() {
           type: 'question',
           title: '🎉 업데이트 준비 완료',
           message: `최신 버전(v${info.version}) 패치가 무인 다운로드 완료되었습니다.`,
-          detail: '지금 1초 만에 앱을 자동 교체 재시작하시겠습니까?',
+          detail: '지금 즉시 기존 앱을 자동 종료하고 최신 버전으로 1초 재시작하시겠습니까?',
           buttons: ['지금 즉시 자동 재시작하여 적용', '나중에 적용']
         }).then((result) => {
           if (result.response === 0) {
-            autoUpdater.quitAndInstall(false, true);
+            autoUpdater.quitAndInstall(true, true);
           }
         });
       });
@@ -102,10 +119,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  if (gotTheLock) {
+    createWindow();
+  }
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (BrowserWindow.getAllWindows().length === 0 && gotTheLock) {
       createWindow();
     }
   });
