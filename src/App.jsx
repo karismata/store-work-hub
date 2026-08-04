@@ -236,6 +236,18 @@ export default function App() {
           });
         }
 
+        // Fetch Chat Rooms from Supabase Cloud DB
+        const { data: cloudRooms } = await supabase.from('chat_rooms').select('*');
+        if (cloudRooms && cloudRooms.length > 0) {
+          setRooms(cloudRooms.map(r => ({
+            id: r.id,
+            name: r.name,
+            description: r.description,
+            members: typeof r.members === 'string' ? JSON.parse(r.members) : (r.members || []),
+            createdAt: r.created_at || r.createdAt
+          })));
+        }
+
         const { data: cloudMsgs } = await supabase.from('chat_messages').select('*').order('created_at', { ascending: true });
         if (cloudMsgs && cloudMsgs.length > 0) {
           setChatMessages(cloudMsgs.map(m => ({
@@ -296,6 +308,25 @@ export default function App() {
           });
         }
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_rooms' }, payload => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const r = payload.new;
+          const formatted = {
+            id: r.id,
+            name: r.name,
+            description: r.description,
+            members: typeof r.members === 'string' ? JSON.parse(r.members) : (r.members || []),
+            createdAt: r.created_at || r.createdAt
+          };
+          setRooms(prev => {
+            const exists = prev.some(existing => existing.id === formatted.id);
+            if (exists) {
+              return prev.map(existing => existing.id === formatted.id ? formatted : existing);
+            }
+            return [...prev, formatted];
+          });
+        }
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
         if (payload.eventType === 'INSERT') {
           const newM = payload.new;
@@ -341,13 +372,34 @@ export default function App() {
   }, [currentTeam]);
 
   // Chat Handlers
-  const handleCreateRoom = (newRoom) => {
+  const handleCreateRoom = async (newRoom) => {
     setRooms(prev => [...prev, newRoom]);
     setCurrentRoomId(newRoom.id);
+
+    try {
+      await supabase.from('chat_rooms').insert([{
+        id: newRoom.id,
+        name: newRoom.name,
+        description: newRoom.description,
+        members: JSON.stringify(newRoom.members || []),
+        created_at: newRoom.createdAt
+      }]);
+    } catch (e) {
+      console.warn('Cloud sync create room note:', e);
+    }
   };
 
-  const handleUpdateRoomMembers = (roomId, newMembers) => {
+  const handleUpdateRoomMembers = async (roomId, newMembers) => {
     setRooms(prev => prev.map(r => r.id === roomId ? { ...r, members: newMembers } : r));
+
+    try {
+      await supabase.from('chat_rooms').upsert([{
+        id: roomId,
+        members: JSON.stringify(newMembers || [])
+      }]);
+    } catch (e) {
+      console.warn('Cloud sync update room members note:', e);
+    }
   };
 
   const handleSendMessage = async (newMsg) => {

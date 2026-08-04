@@ -47,14 +47,24 @@ export default function ChatWorkspace({
 
   const chatEndRef = useRef(null);
 
-  // Filter rooms that current user is invited to
+  // Filter rooms that current user is invited to (ultra-robust matching)
   const visibleRooms = rooms.filter(room => {
     if (!room.members || room.members.length === 0) return true; // public room
     if (!currentUser) return true;
-    const uid = currentUser.id || currentUser.username;
-    const uname = currentUser.name;
-    const uuser = currentUser.username;
-    return room.members.some(m => m === uid || m === uname || m === uuser || m === 'all');
+    const uid = (currentUser.id || '').toString().toLowerCase();
+    const uname = (currentUser.name || '').toString().toLowerCase();
+    const uuser = (currentUser.username || '').toString().toLowerCase();
+
+    return room.members.some(m => {
+      if (!m) return false;
+      const memStr = m.toString().toLowerCase();
+      return memStr === 'all' || 
+             memStr === uid || 
+             memStr === uname || 
+             memStr === uuser ||
+             (uuser && (memStr.includes(uuser) || uuser.includes(memStr))) ||
+             (uname && (memStr.includes(uname) || uname.includes(memStr)));
+    });
   });
 
   // Active room must be in visibleRooms, otherwise null (Do NOT fallback to rooms[0] of uninvited rooms)

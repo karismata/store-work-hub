@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS stores (
   created_by TEXT
 );
 
--- 4. Create Work Requests Table (with Author Name & User ID)
+-- 4. Create Work Requests Table
 CREATE TABLE IF NOT EXISTS work_requests (
   id TEXT PRIMARY KEY,
   store_id TEXT,
@@ -55,14 +55,43 @@ CREATE TABLE IF NOT EXISTS work_requests (
   author_user_id TEXT NOT NULL
 );
 
+-- 5. Create Chat Rooms Table
+CREATE TABLE IF NOT EXISTS chat_rooms (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  members TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Create Chat Messages Table
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id TEXT PRIMARY KEY,
+  room_id TEXT NOT NULL,
+  sender_id TEXT NOT NULL,
+  sender_name TEXT NOT NULL,
+  sender_dept TEXT,
+  content TEXT NOT NULL,
+  is_work_request BOOLEAN DEFAULT FALSE,
+  category TEXT,
+  store_name TEXT,
+  biz_no TEXT,
+  status TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Enable Realtime for all tables
 ALTER PUBLICATION supabase_realtime ADD TABLE app_users;
 ALTER PUBLICATION supabase_realtime ADD TABLE departments;
 ALTER PUBLICATION supabase_realtime ADD TABLE stores;
 ALTER PUBLICATION supabase_realtime ADD TABLE work_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE chat_rooms;
+ALTER PUBLICATION supabase_realtime ADD TABLE chat_messages;
 
--- Enable public access policies (RLS disabled or allowed for simplicity)
+-- Disable RLS for simple open team collaboration
 ALTER TABLE app_users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE departments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE stores DISABLE ROW LEVEL SECURITY;
 ALTER TABLE work_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_rooms DISABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages DISABLE ROW LEVEL SECURITY;
