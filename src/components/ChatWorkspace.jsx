@@ -44,9 +44,28 @@ export default function ChatWorkspace({
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [invitedUserIds, setInvitedUserIds] = useState([]);
   const [inviteSearchQuery, setInviteSearchQuery] = useState('');
+  const [warningBanner, setWarningBanner] = useState('');
+
+  const showWarning = (msg) => {
+    setWarningBanner(msg);
+    setTimeout(() => {
+      setWarningBanner('');
+    }, 4000);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  };
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Auto focus input when active room changes or modal closes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [currentRoomId, isInviteModalOpen]);
 
   // Filter rooms that current user is invited to (ultra-robust matching)
   const visibleRooms = rooms.filter(room => {
@@ -497,20 +516,43 @@ export default function ChatWorkspace({
             </div>
 
             {/* Bottom Chat Input Bar */}
-            <div style={{
-              padding: '10px 16px',
-              borderTop: '1px solid var(--border-color)',
-              backgroundColor: 'var(--bg-sidebar)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '6px'
-            }}>
+            <div 
+              onClick={() => inputRef.current?.focus()}
+              style={{
+                padding: '10px 16px',
+                borderTop: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-sidebar)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}
+            >
+              {/* Non-blocking Warning Banner replacing native alert */}
+              {warningBanner && (
+                <div style={{
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fca5a5',
+                  color: '#dc2626',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  <span>{warningBanner}</span>
+                </div>
+              )}
+
               {/* Work Request Toolbar Line */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <button 
                   type="button"
                   className={isWorkRequestMode ? 'btn-primary-action' : 'btn-secondary-action'}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const nextMode = !isWorkRequestMode;
                     setIsWorkRequestMode(nextMode);
                     if (!nextMode) {
@@ -518,6 +560,7 @@ export default function ChatWorkspace({
                       setHasSearchedStore(false);
                       setStoreSearchInput('');
                     }
+                    setTimeout(() => inputRef.current?.focus(), 30);
                   }}
                   style={{ padding: '3px 8px', fontSize: '11px', whiteSpace: 'nowrap' }}
                 >
@@ -595,9 +638,11 @@ export default function ChatWorkspace({
                               searchedStoresResult.map(s => (
                                 <div 
                                   key={s.id} 
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setSelectedStore(s);
                                     setHasSearchedStore(false);
+                                    setTimeout(() => inputRef.current?.focus(), 30);
                                   }}
                                   style={{
                                     display: 'flex',
@@ -643,9 +688,11 @@ export default function ChatWorkspace({
                         <span style={{ fontFamily: 'monospace', color: 'var(--accent-primary)' }}>({selectedStore.bizNo})</span>
                         <button 
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedStore(null);
                             setHasSearchedStore(false);
+                            setTimeout(() => inputRef.current?.focus(), 30);
                           }}
                           style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 2px' }}
                           title="가맹점 변경"
@@ -668,7 +715,15 @@ export default function ChatWorkspace({
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  style={{ flex: 1, resize: 'none' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.focus();
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.focus();
+                  }}
+                  style={{ flex: 1, resize: 'none', pointerEvents: 'auto', userSelect: 'text', cursor: 'text' }}
                 />
                 <button 
                   type="button" 

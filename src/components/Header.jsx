@@ -36,7 +36,7 @@ export default function Header({
             letterSpacing: '0.3px',
             border: '1px solid rgba(59, 130, 246, 0.3)'
           }}>
-            v1.1.1
+            v1.1.2
           </span>
         </div>
       </div>
