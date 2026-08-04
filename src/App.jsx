@@ -166,7 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.0.4';
+  const CURRENT_APP_VERSION = '1.0.5';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
 
   const handleManualUpdateCheck = async () => {
