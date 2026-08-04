@@ -3,7 +3,7 @@
 -- Run this script in your Supabase Dashboard -> SQL Editor
 -- ========================================================
 
--- 1. Create Profiles / Staff Users Table
+-- 1. Create Tables
 CREATE TABLE IF NOT EXISTS app_users (
   id TEXT PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS app_users (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create Departments Table
 CREATE TABLE IF NOT EXISTS departments (
   id TEXT PRIMARY KEY,
   code TEXT NOT NULL,
@@ -22,7 +21,6 @@ CREATE TABLE IF NOT EXISTS departments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Create Stores Table
 CREATE TABLE IF NOT EXISTS stores (
   id TEXT PRIMARY KEY,
   biz_no TEXT,
@@ -37,7 +35,6 @@ CREATE TABLE IF NOT EXISTS stores (
   created_by TEXT
 );
 
--- 4. Create Work Requests Table
 CREATE TABLE IF NOT EXISTS work_requests (
   id TEXT PRIMARY KEY,
   store_id TEXT,
@@ -55,7 +52,6 @@ CREATE TABLE IF NOT EXISTS work_requests (
   author_user_id TEXT NOT NULL
 );
 
--- 5. Create Chat Rooms Table
 CREATE TABLE IF NOT EXISTS chat_rooms (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -64,7 +60,6 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Create Chat Messages Table
 CREATE TABLE IF NOT EXISTS chat_messages (
   id TEXT PRIMARY KEY,
   room_id TEXT NOT NULL,
@@ -80,15 +75,18 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable Realtime for all tables
-ALTER PUBLICATION supabase_realtime ADD TABLE app_users;
-ALTER PUBLICATION supabase_realtime ADD TABLE departments;
-ALTER PUBLICATION supabase_realtime ADD TABLE stores;
-ALTER PUBLICATION supabase_realtime ADD TABLE work_requests;
-ALTER PUBLICATION supabase_realtime ADD TABLE chat_rooms;
-ALTER PUBLICATION supabase_realtime ADD TABLE chat_messages;
+-- 2. Enable Realtime safely (ignore duplicate publication errors)
+DO $$
+BEGIN
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE app_users; EXCEPTION WHEN OTHERS THEN END;
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE departments; EXCEPTION WHEN OTHERS THEN END;
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE stores; EXCEPTION WHEN OTHERS THEN END;
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE work_requests; EXCEPTION WHEN OTHERS THEN END;
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE chat_rooms; EXCEPTION WHEN OTHERS THEN END;
+  BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE chat_messages; EXCEPTION WHEN OTHERS THEN END;
+END $$;
 
--- Disable RLS for simple open team collaboration
+-- 3. Disable RLS for open team collaboration
 ALTER TABLE app_users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE departments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE stores DISABLE ROW LEVEL SECURITY;
