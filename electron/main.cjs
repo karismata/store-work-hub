@@ -24,17 +24,20 @@ function createWindow() {
     win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  // Explicit Auto Update Notifications
+  // Explicit Auto Update System for Production Mode
   if (!isDev) {
     try {
       const { autoUpdater } = require('electron-updater');
+
+      autoUpdater.autoDownload = true;
+      autoUpdater.autoInstallOnAppQuit = true;
 
       autoUpdater.on('update-available', (info) => {
         dialog.showMessageBox(win, {
           type: 'info',
           title: '새 버전 업데이트 감지',
-          message: `새로운 최신 기능 버전(${info.version})이 출시되었습니다!`,
-          detail: '최신 기능 패치를 자동으로 다운로드합니다. 완료 시 안내창이 나타납니다.',
+          message: `새로운 최신 기능 버전(v${info.version})이 출시되었습니다!`,
+          detail: '최신 기능 패치를 자동으로 다운로드 중입니다. 완료 시 재시작 안내창이 나타납니다.',
           buttons: ['확인']
         });
       });
@@ -43,20 +46,29 @@ function createWindow() {
         dialog.showMessageBox(win, {
           type: 'question',
           title: '업데이트 준비 완료',
-          message: '최신 버전 업데이트 다운로드가 완료되었습니다.',
+          message: `최신 버전(v${info.version}) 다운로드가 완료되었습니다.`,
           detail: '지금 프로그램을 재시작하여 최신 기능을 적용하시겠습니까?',
-          buttons: ['지금 재시작하여 최신버전 적용', '나중에 재시작']
+          buttons: ['지금 재시작하여 적용', '나중에 적용']
         }).then((result) => {
           if (result.response === 0) {
-            autoUpdater.quitAndInstall();
+            autoUpdater.quitAndInstall(false, true);
           }
         });
       });
 
-      autoUpdater.checkForUpdatesAndNotify().catch(err => {
-        console.log('Auto updater check note:', err);
+      autoUpdater.on('error', (err) => {
+        console.log('AutoUpdater error:', err);
       });
-    } catch (e) {}
+
+      // Trigger update check on startup
+      setTimeout(() => {
+        autoUpdater.checkForUpdates().catch(err => {
+          console.log('Auto updater check note:', err);
+        });
+      }, 3000);
+    } catch (e) {
+      console.log('Auto updater init note:', e);
+    }
   }
 }
 
