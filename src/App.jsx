@@ -377,13 +377,14 @@ export default function App() {
     setCurrentRoomId(newRoom.id);
 
     try {
-      await supabase.from('chat_rooms').insert([{
+      const roomPayload = {
         id: newRoom.id,
-        name: newRoom.name,
-        description: newRoom.description,
-        members: JSON.stringify(newRoom.members || []),
-        created_at: newRoom.createdAt
-      }]);
+        name: newRoom.name || '업무방',
+        description: newRoom.description || '',
+        members: typeof newRoom.members === 'string' ? newRoom.members : JSON.stringify(newRoom.members || []),
+        created_at: newRoom.createdAt || new Date().toISOString()
+      };
+      await supabase.from('chat_rooms').insert([roomPayload]);
     } catch (e) {
       console.warn('Cloud sync create room note:', e);
     }
@@ -393,10 +394,15 @@ export default function App() {
     setRooms(prev => prev.map(r => r.id === roomId ? { ...r, members: newMembers } : r));
 
     try {
-      await supabase.from('chat_rooms').upsert([{
+      const existingRoom = rooms.find(r => r.id === roomId);
+      const roomPayload = {
         id: roomId,
-        members: JSON.stringify(newMembers || [])
-      }]);
+        name: existingRoom?.name || '업무방',
+        description: existingRoom?.description || '',
+        members: JSON.stringify(newMembers || []),
+        created_at: existingRoom?.createdAt || new Date().toISOString()
+      };
+      await supabase.from('chat_rooms').upsert([roomPayload]);
     } catch (e) {
       console.warn('Cloud sync update room members note:', e);
     }
@@ -405,22 +411,27 @@ export default function App() {
   const handleSendMessage = async (newMsg) => {
     setChatMessages(prev => [...prev, newMsg]);
 
-    // Async push to Supabase Cloud DB
+    // Async push to Supabase Cloud DB with sanitized null values
     try {
-      await supabase.from('chat_messages').insert([{
+      const msgPayload = {
         id: newMsg.id,
-        room_id: newMsg.roomId,
-        sender_id: newMsg.senderId,
-        sender_name: newMsg.senderName,
-        sender_dept: newMsg.senderDept,
-        content: newMsg.content,
-        is_work_request: newMsg.isWorkRequest,
-        category: newMsg.category,
-        store_name: newMsg.storeName,
-        biz_no: newMsg.bizNo,
-        status: newMsg.status,
-        created_at: newMsg.createdAt
-      }]);
+        room_id: newMsg.roomId || 'ROOM-1',
+        sender_id: newMsg.senderId || 'user',
+        sender_name: newMsg.senderName || '직원',
+        sender_dept: newMsg.senderDept || '일반부서',
+        content: newMsg.content || '',
+        is_work_request: !!newMsg.isWorkRequest,
+        category: newMsg.category || null,
+        store_name: newMsg.storeName || null,
+        biz_no: newMsg.bizNo || null,
+        status: newMsg.status || null,
+        created_at: newMsg.createdAt || new Date().toISOString()
+      };
+
+      const { error: msgErr } = await supabase.from('chat_messages').insert([msgPayload]);
+      if (msgErr) {
+        console.error('Cloud sync chat message error:', msgErr);
+      }
     } catch (e) {
       console.warn('Cloud sync chat message note:', e);
     }
