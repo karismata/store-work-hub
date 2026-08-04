@@ -308,7 +308,7 @@ export default function App() {
         if (cloudMsgs && cloudMsgs.length > 0) {
           const formattedMsgs = cloudMsgs.map(m => ({
             id: m.id,
-            roomId: m.room_id || m.roomId || 'ROOM-1',
+            roomId: String(m.room_id || m.roomId || 'ROOM-1').trim(),
             senderId: m.sender_id || m.senderId,
             senderName: m.sender_name || m.senderName,
             senderDept: m.sender_dept || m.senderDept,

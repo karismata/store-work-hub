@@ -68,8 +68,13 @@ export default function ChatWorkspace({
   });
 
   // Active room must be in visibleRooms, otherwise null (Do NOT fallback to rooms[0] of uninvited rooms)
-  const activeRoom = visibleRooms.find(r => r.id === currentRoomId) || visibleRooms[0] || null;
-  const roomMessages = activeRoom ? messages.filter(m => m.roomId === activeRoom.id) : [];
+  const activeRoom = visibleRooms.find(r => String(r.id).trim().toLowerCase() === String(currentRoomId).trim().toLowerCase()) || visibleRooms[0] || null;
+  const roomMessages = activeRoom 
+    ? messages.filter(m => {
+        if (!m || !m.roomId) return false;
+        return String(m.roomId).trim().toLowerCase() === String(activeRoom.id).trim().toLowerCase();
+      }) 
+    : [];
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
