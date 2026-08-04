@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Key, Globe, Check, X, Server, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { getSupabaseConfig, setSupabaseConfig, supabase } from '../lib/supabase';
+import { Database, Key, Globe, Check, X, Server, RefreshCw, AlertTriangle, CheckCircle2, RotateCcw } from 'lucide-react';
+import { getSupabaseConfig, setSupabaseConfig, resetSupabaseConfigToDefault, OFFICIAL_SUPABASE_URL, OFFICIAL_SUPABASE_KEY, supabase } from '../lib/supabase';
 
 export default function SupabaseModal({ isOpen, onClose }) {
   const currentConfig = getSupabaseConfig();
@@ -29,7 +29,7 @@ export default function SupabaseModal({ isOpen, onClose }) {
         setTestStatus({
           loading: false,
           success: true,
-          msg: '🟢 Supabase 클라우드 데이터베이스 정상 연결됨 (실시간 공유 활성화)'
+          msg: '🟢 Supabase 클라우드 데이터베이스 정상 연결됨 (전 직원 실시간 공유 중)'
         });
       }
     } catch (e) {
@@ -52,6 +52,14 @@ export default function SupabaseModal({ isOpen, onClose }) {
       onClose();
       window.location.reload();
     }, 1000);
+  };
+
+  const handleResetToOfficial = () => {
+    resetSupabaseConfigToDefault();
+    setUrl(OFFICIAL_SUPABASE_URL);
+    setKey(OFFICIAL_SUPABASE_KEY);
+    alert('공식 Supabase Cloud 서버 설정값으로 초기화되었습니다! 앱이 바로 재연동됩니다.');
+    window.location.reload();
   };
 
   return (
@@ -132,27 +140,39 @@ export default function SupabaseModal({ isOpen, onClose }) {
                 />
               </div>
               <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                ※ Supabase Dashboard -&gt; Project Settings -&gt; API -&gt; Project API keys 에서 <strong>anon public key</strong> (eyJ...로 시작)를 등록하셔야 연동이 정상 작동합니다.
+                ※ 타 PC와 연동이 끊긴 경우 아래 <strong>[공식 서버 설정으로 초기화]</strong> 버튼을 누르면 즉시 공식 데이터베이스로 복구됩니다.
               </span>
             </div>
           </div>
 
-          <div className="modal-footer" style={{ justifyContent: 'flex-end', gap: '10px' }}>
+          <div className="modal-footer" style={{ justifyContent: 'space-between', gap: '10px' }}>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleResetToOfficial}
               className="btn-secondary-action"
+              style={{ color: '#0284c7', borderColor: 'rgba(2, 132, 199, 0.4)' }}
             >
-              취소
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>공식 서버 설정으로 초기화</span>
             </button>
-            <button
-              type="submit"
-              className="btn-primary-action"
-              style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
-            >
-              {isSaved ? <Check className="w-4 h-4" /> : <Server className="w-4 h-4" />}
-              <span>{isSaved ? '저장됨 & 재연동 중...' : '설정 저장 & 재연동'}</span>
-            </button>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary-action"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                className="btn-primary-action"
+                style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+              >
+                {isSaved ? <Check className="w-4 h-4" /> : <Server className="w-4 h-4" />}
+                <span>{isSaved ? '저장됨 & 재연동 중...' : '설정 저장 & 재연동'}</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
