@@ -166,7 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.1.0';
+  const CURRENT_APP_VERSION = '1.1.1';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
   const [downloadProgressPercent, setDownloadProgressPercent] = useState(0);
@@ -187,7 +187,8 @@ export default function App() {
         const data = await res.json();
         const latestTag = (data.tag_name || '').replace(/^v/, '').trim();
         if (latestTag && latestTag !== CURRENT_APP_VERSION) {
-          const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
+          const installerAsset = data.assets?.find(a => a.name.toLowerCase().includes('setup') && a.name.endsWith('.exe'));
+          const exeAsset = installerAsset || data.assets?.find(a => a.name.endsWith('.exe'));
           const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
 
           if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 설치파일(v${latestTag})을 다운로드하시겠습니까?`)) {
@@ -230,7 +231,8 @@ export default function App() {
           const data = await res.json();
           const latestTag = (data.tag_name || '').replace(/^v/, '').trim();
           if (latestTag && latestTag !== CURRENT_APP_VERSION) {
-            const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
+            const installerAsset = data.assets?.find(a => a.name.toLowerCase().includes('setup') && a.name.endsWith('.exe'));
+            const exeAsset = installerAsset || data.assets?.find(a => a.name.endsWith('.exe'));
             setUpdateAvailableInfo({
               version: latestTag,
               downloadUrl: exeAsset ? exeAsset.browser_download_url : data.html_url
