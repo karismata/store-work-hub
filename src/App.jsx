@@ -166,18 +166,11 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.0.6';
+  const CURRENT_APP_VERSION = '1.0.7';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
 
   const handleManualUpdateCheck = async () => {
-    if (window.electronAPI) {
-      try {
-        await window.electronAPI.checkForUpdate();
-      } catch (e) {
-        console.warn('Electron updater check note:', e);
-      }
-    }
     try {
       const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
       if (res.ok) {
@@ -186,12 +179,16 @@ export default function App() {
         if (latestTag && latestTag !== CURRENT_APP_VERSION) {
           const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
           const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
-          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 다운로드 페이지로 이동하시겠습니까?`)) {
+
+          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 설치파일(v${latestTag})을 1초 만에 다운로드하시겠습니까?`)) {
             if (window.electronAPI) {
               window.electronAPI.openExternal(url);
             } else {
               window.open(url, '_blank');
             }
+          }
+          if (window.electronAPI) {
+            window.electronAPI.checkForUpdate().catch(() => {});
           }
         } else {
           alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);

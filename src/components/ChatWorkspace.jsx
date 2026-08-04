@@ -336,86 +336,158 @@ export default function ChatWorkspace({
                 </div>
               ) : (
                 roomMessages.map(msg => {
-                  const isMe = msg.senderId === (currentUser?.username || 'user');
+                  const isMe = (
+                    msg.senderId === (currentUser?.username || 'user') ||
+                    msg.senderId === currentUser?.id ||
+                    (currentUser?.username && String(msg.senderId).toLowerCase() === String(currentUser.username).toLowerCase()) ||
+                    (currentUser?.name && String(msg.senderName).toLowerCase() === String(currentUser.name).toLowerCase())
+                  );
+
+                  const formattedTime = (() => {
+                    if (!msg.createdAt) return '';
+                    try {
+                      const d = new Date(msg.createdAt);
+                      return isNaN(d.getTime()) ? msg.createdAt : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    } catch (e) {
+                      return msg.createdAt;
+                    }
+                  })();
+
+                  if (isMe) {
+                    // KakaoTalk Style MY Message (Right Aligned)
+                    return (
+                      <div key={msg.id} style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', maxWidth: '75%', gap: '2px' }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '2px', flexShrink: 0 }}>
+                              {formattedTime}
+                            </span>
+                            {msg.isWorkRequest ? (
+                              <div style={{
+                                backgroundColor: 'var(--status-new-bg)',
+                                border: '1px solid var(--status-new-border)',
+                                borderRadius: '14px 14px 2px 14px',
+                                padding: '10px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '6px',
+                                boxShadow: '0 2px 8px rgba(37,99,235,0.15)'
+                              }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                                  <span style={{ fontWeight: '700', fontSize: '12px', color: 'var(--status-new-text)' }}>
+                                    📋 [{msg.category}] 업무 요청
+                                  </span>
+                                  <span className="badge-status status-new" style={{ fontSize: '10px' }}>
+                                    {msg.status || '신규'}
+                                  </span>
+                                </div>
+                                {msg.storeName && (
+                                  <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                    🏪 가맹점: {msg.storeName} ({msg.bizNo})
+                                  </div>
+                                )}
+                                <div style={{ fontSize: '12px', whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                                  {msg.content}
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{
+                                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                                color: '#ffffff',
+                                borderRadius: '14px 14px 2px 14px',
+                                padding: '9px 14px',
+                                fontSize: '12px',
+                                lineHeight: '1.4',
+                                boxShadow: '0 2px 6px rgba(37,99,235,0.25)',
+                                wordBreak: 'break-word',
+                                whiteSpace: 'pre-wrap'
+                              }}>
+                                {msg.content}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // KakaoTalk Style OTHER User Message (Left Aligned)
                   return (
-                    <div key={msg.id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      {/* User Avatar */}
+                    <div key={msg.id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', maxWidth: '75%' }}>
+                      {/* Other User Avatar */}
                       <div style={{
-                        width: '32px',
-                        height: '32px',
+                        width: '34px',
+                        height: '34px',
                         borderRadius: '50%',
-                        backgroundColor: isMe ? 'var(--accent-primary)' : 'var(--border-color)',
-                        color: isMe ? '#ffffff' : 'var(--text-primary)',
+                        backgroundColor: '#3b82f6',
+                        color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: '700',
-                        fontSize: '12px',
-                        flexShrink: 0
+                        fontSize: '13px',
+                        flexShrink: 0,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                       }}>
                         {msg.senderName ? msg.senderName[0] : '직'}
                       </div>
 
-                      {/* Message Card */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '80%' }}>
+                      {/* Other User Content Block */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontWeight: '700', fontSize: '12px', color: 'var(--text-primary)' }}>
+                          <span style={{ fontWeight: '700', fontSize: '11px', color: 'var(--text-primary)' }}>
                             {msg.senderName} ({msg.senderDept})
-                          </span>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                            {(() => {
-                              if (!msg.createdAt) return '';
-                              try {
-                                const d = new Date(msg.createdAt);
-                                return isNaN(d.getTime()) ? msg.createdAt : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                              } catch (e) {
-                                return msg.createdAt;
-                              }
-                            })()}
                           </span>
                         </div>
 
-                        {/* Standard Text or Work Request Card */}
-                        {msg.isWorkRequest ? (
-                          <div style={{
-                            backgroundColor: 'var(--status-new-bg)',
-                            border: '1px solid var(--status-new-border)',
-                            borderRadius: '8px',
-                            padding: '10px 12px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '6px'
-                          }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontWeight: '700', fontSize: '12px', color: 'var(--status-new-text)' }}>
-                                📋 [{msg.category}] 업무 요청
-                              </span>
-                              <span className="badge-status status-new" style={{ fontSize: '10px' }}>
-                                {msg.status || '신규'}
-                              </span>
-                            </div>
-                            {msg.storeName && (
-                              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                                🏪 가맹점: {msg.storeName} ({msg.bizNo})
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+                          {msg.isWorkRequest ? (
+                            <div style={{
+                              backgroundColor: 'var(--status-new-bg)',
+                              border: '1px solid var(--status-new-border)',
+                              borderRadius: '2px 14px 14px 14px',
+                              padding: '10px 14px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontWeight: '700', fontSize: '12px', color: 'var(--status-new-text)' }}>
+                                  📋 [{msg.category}] 업무 요청
+                                </span>
+                                <span className="badge-status status-new" style={{ fontSize: '10px' }}>
+                                  {msg.status || '신규'}
+                                </span>
                               </div>
-                            )}
-                            <div style={{ fontSize: '12px', whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                              {msg.storeName && (
+                                <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                  🏪 가맹점: {msg.storeName} ({msg.bizNo})
+                                </div>
+                              )}
+                              <div style={{ fontSize: '12px', whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                                {msg.content}
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{
+                              backgroundColor: 'var(--bg-card)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '2px 14px 14px 14px',
+                              padding: '9px 14px',
+                              fontSize: '12px',
+                              lineHeight: '1.4',
+                              color: 'var(--text-primary)',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                              wordBreak: 'break-word',
+                              whiteSpace: 'pre-wrap'
+                            }}>
                               {msg.content}
                             </div>
-                          </div>
-                        ) : (
-                          <div style={{
-                            backgroundColor: 'var(--bg-card)',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '8px',
-                            padding: '8px 12px',
-                            fontSize: '12px',
-                            lineHeight: '1.4',
-                            color: 'var(--text-primary)'
-                          }}>
-                            {msg.content}
-                          </div>
-                        )}
+                          )}
+                          <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '2px', flexShrink: 0 }}>
+                            {formattedTime}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
