@@ -46,6 +46,7 @@ export default function ChatWorkspace({
   const [inviteSearchQuery, setInviteSearchQuery] = useState('');
 
   const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Filter rooms that current user is invited to (ultra-robust matching)
   const visibleRooms = rooms.filter(room => {
@@ -112,6 +113,9 @@ export default function ChatWorkspace({
 
     if (isWorkRequestMode && !selectedStore) {
       alert('업무요청 카드를 전송하려면 먼저 대상 가맹점을 검색 후 선택해 주세요.');
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
       return;
     }
 
@@ -585,6 +589,7 @@ export default function ChatWorkspace({
               {/* Text Input Area */}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <textarea 
+                  ref={inputRef}
                   className="input-field"
                   rows="2"
                   placeholder={isWorkRequestMode ? "가맹점 요청 세부 내용 및 연락처 정보를 입력하세요 (Enter: 전송)" : "메세지를 입력하세요 (Enter: 전송, Shift+Enter: 줄바꿈)"}
