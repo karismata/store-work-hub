@@ -166,10 +166,17 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.0.5';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
+  const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
 
   const handleManualUpdateCheck = async () => {
+    if (window.electronAPI) {
+      try {
+        await window.electronAPI.checkForUpdate();
+      } catch (e) {
+        console.warn('Electron updater check note:', e);
+      }
+    }
     try {
       const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
       if (res.ok) {
@@ -178,8 +185,12 @@ export default function App() {
         if (latestTag && latestTag !== CURRENT_APP_VERSION) {
           const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
           const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
-          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 설치파일을 다운로드하시겠습니까?`)) {
-            window.open(url, '_blank');
+          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 다운로드 페이지로 이동하시겠습니까?`)) {
+            if (window.electronAPI) {
+              window.electronAPI.openExternal(url);
+            } else {
+              window.open(url, '_blank');
+            }
           }
         } else {
           alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
@@ -193,6 +204,12 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (window.electronAPI) {
+      window.electronAPI.onUpdateDownloaded((info) => {
+        setDownloadedUpdateVersion(info.version || '최신');
+      });
+    }
+
     // Check GitHub Releases API for new version automatically
     const checkGitHubRelease = async () => {
       try {
@@ -669,8 +686,45 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Downloaded Update 1-Click Auto Install Banner */}
+      {downloadedUpdateVersion && (
+        <div style={{
+          background: 'linear-gradient(90deg, #059669, #10b981)',
+          color: '#ffffff',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          zIndex: 99999
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🎉 최신 버전(v{downloadedUpdateVersion}) 패치가 다운로드 완료되었습니다!</span>
+          </div>
+          <button 
+            onClick={() => {
+              if (window.electronAPI) window.electronAPI.quitAndInstall();
+            }}
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#059669',
+              border: 'none',
+              padding: '5px 14px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 700
+            }}
+          >
+            지금 클릭하여 1초 만에 자동 교체 재시작 ➔
+          </button>
+        </div>
+      )}
+
       {/* Realtime GitHub Update Banner if new release is published */}
-      {updateAvailableInfo && (
+      {updateAvailableInfo && !downloadedUpdateVersion && (
         <div style={{
           background: 'linear-gradient(90deg, #2563eb, #1d4ed8)',
           color: '#ffffff',
@@ -686,22 +740,27 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>🚀 새로운 최신 기능 버전(v{updateAvailableInfo.version})이 출시되었습니다! (현재 사용 중: v{CURRENT_APP_VERSION})</span>
           </div>
-          <a 
-            href={updateAvailableInfo.downloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button 
+            onClick={() => {
+              if (window.electronAPI) {
+                window.electronAPI.openExternal(updateAvailableInfo.downloadUrl);
+              } else {
+                window.open(updateAvailableInfo.downloadUrl, '_blank');
+              }
+            }}
             style={{
               backgroundColor: '#ffffff',
               color: '#2563eb',
-              padding: '4px 12px',
+              border: 'none',
+              padding: '5px 14px',
               borderRadius: '4px',
-              textDecoration: 'none',
+              cursor: 'pointer',
               fontSize: '12px',
               fontWeight: 700
             }}
           >
             최신 버전 다운로드 / 즉시 업데이트 ➔
-          </a>
+          </button>
         </div>
       )}
 
