@@ -289,18 +289,24 @@ export default function App() {
         // Fetch Chat Rooms from Supabase Cloud DB
         const { data: cloudRooms } = await supabase.from('chat_rooms').select('*');
         if (cloudRooms && cloudRooms.length > 0) {
-          setRooms(cloudRooms.map(r => ({
+          const formattedRooms = cloudRooms.map(r => ({
             id: r.id,
             name: r.name,
             description: r.description,
             members: typeof r.members === 'string' ? JSON.parse(r.members) : (r.members || []),
             createdAt: r.created_at || r.createdAt
-          })));
+          }));
+          setRooms(prev => {
+            const map = new Map();
+            prev.forEach(r => map.set(r.id, r));
+            formattedRooms.forEach(r => map.set(r.id, r));
+            return Array.from(map.values());
+          });
         }
 
         const { data: cloudMsgs } = await supabase.from('chat_messages').select('*').order('created_at', { ascending: true });
         if (cloudMsgs && cloudMsgs.length > 0) {
-          setChatMessages(cloudMsgs.map(m => ({
+          const formattedMsgs = cloudMsgs.map(m => ({
             id: m.id,
             roomId: m.room_id || m.roomId || 'ROOM-1',
             senderId: m.sender_id || m.senderId,
@@ -313,7 +319,13 @@ export default function App() {
             bizNo: m.biz_no || m.bizNo,
             status: m.status,
             createdAt: m.created_at || m.createdAt
-          })));
+          }));
+          setChatMessages(prev => {
+            const map = new Map();
+            prev.forEach(m => map.set(m.id, m));
+            formattedMsgs.forEach(m => map.set(m.id, m));
+            return Array.from(map.values());
+          });
         }
 
         const { data: cloudReqs } = await supabase.from('work_requests').select('*').order('created_at', { ascending: false });
@@ -331,6 +343,11 @@ export default function App() {
     };
 
     fetchCloudData();
+
+    // 2-Second Fail-Safe Background Sync for instant multi-PC messaging
+    const pollInterval = setInterval(() => {
+      fetchCloudData();
+    }, 2000);
 
     // Supabase Realtime Subscription Channel
     const channel = supabase
@@ -417,6 +434,7 @@ export default function App() {
       .subscribe();
 
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, [currentTeam]);
