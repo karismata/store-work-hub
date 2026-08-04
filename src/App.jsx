@@ -166,6 +166,33 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
+  const CURRENT_APP_VERSION = '1.0.3';
+  const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
+
+  useEffect(() => {
+    // Check GitHub Releases API for new version automatically
+    const checkGitHubRelease = async () => {
+      try {
+        const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
+        if (res.ok) {
+          const data = await res.json();
+          const latestTag = (data.tag_name || '').replace(/^v/, '').trim();
+          if (latestTag && latestTag !== CURRENT_APP_VERSION) {
+            const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
+            setUpdateAvailableInfo({
+              version: latestTag,
+              downloadUrl: exeAsset ? exeAsset.browser_download_url : data.html_url
+            });
+          }
+        }
+      } catch (err) {
+        console.log('GitHub Release check note:', err);
+      }
+    };
+
+    checkGitHubRelease();
+  }, []);
+
   // Sync theme attribute & save to localStorage
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -593,6 +620,42 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Realtime GitHub Update Banner if new release is published */}
+      {updateAvailableInfo && (
+        <div style={{
+          background: 'linear-gradient(90deg, #2563eb, #1d4ed8)',
+          color: '#ffffff',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          zIndex: 99999
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🚀 새로운 최신 기능 버전(v{updateAvailableInfo.version})이 출시되었습니다! (현재 사용 중: v{CURRENT_APP_VERSION})</span>
+          </div>
+          <a 
+            href={updateAvailableInfo.downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#2563eb',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              textDecoration: 'none',
+              fontSize: '12px',
+              fontWeight: 700
+            }}
+          >
+            최신 버전 다운로드 / 즉시 업데이트 ➔
+          </a>
+        </div>
+      )}
+
       {/* Top Navbar Header */}
       <Header 
         theme={theme}
