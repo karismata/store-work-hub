@@ -166,7 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.1.2';
+  const CURRENT_APP_VERSION = '1.1.3';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
   const [downloadProgressPercent, setDownloadProgressPercent] = useState(0);
@@ -791,7 +791,7 @@ export default function App() {
           <button 
             onClick={() => {
               if (window.electronAPI) {
-                window.electronAPI.openExternal(updateAvailableInfo.downloadUrl);
+                window.electronAPI.checkForUpdate();
               } else {
                 window.open(updateAvailableInfo.downloadUrl, '_blank');
               }
@@ -807,7 +807,7 @@ export default function App() {
               fontWeight: 700
             }}
           >
-            최신 버전 다운로드 / 즉시 업데이트 ➔
+            🚀 크롬 없이 앱 내부 무인 자동 다운로드 ➔
           </button>
         </div>
       )}
