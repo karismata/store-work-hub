@@ -166,11 +166,21 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.0.7';
+  const CURRENT_APP_VERSION = '1.0.8';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
+  const [downloadProgressPercent, setDownloadProgressPercent] = useState(0);
 
   const handleManualUpdateCheck = async () => {
+    if (window.electronAPI) {
+      try {
+        alert('🔍 최신 버전을 검사합니다. 신규 버전이 존재하면 웹브라우저 없이 앱 내부에서 백그라운드 무인 다운로드가 시작됩니다.');
+        await window.electronAPI.checkForUpdate();
+        return;
+      } catch (e) {
+        console.warn('Electron updater check note:', e);
+      }
+    }
     try {
       const res = await fetch('https://api.github.com/repos/karismata/store-work-hub/releases/latest');
       if (res.ok) {
@@ -180,15 +190,12 @@ export default function App() {
           const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
           const url = exeAsset ? exeAsset.browser_download_url : data.html_url;
 
-          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 최신 버전 설치파일(v${latestTag})을 1초 만에 다운로드하시겠습니까?`)) {
+          if (window.confirm(`🚀 새로운 최신 버전(v${latestTag})이 출시되었습니다!\n현재 버전: v${CURRENT_APP_VERSION}\n\n지금 설치파일(v${latestTag})을 다운로드하시겠습니까?`)) {
             if (window.electronAPI) {
               window.electronAPI.openExternal(url);
             } else {
               window.open(url, '_blank');
             }
-          }
-          if (window.electronAPI) {
-            window.electronAPI.checkForUpdate().catch(() => {});
           }
         } else {
           alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
@@ -203,7 +210,14 @@ export default function App() {
 
   useEffect(() => {
     if (window.electronAPI) {
+      window.electronAPI.onDownloadProgress((progressObj) => {
+        if (progressObj && progressObj.percent) {
+          setDownloadProgressPercent(Math.round(progressObj.percent));
+        }
+      });
+
       window.electronAPI.onUpdateDownloaded((info) => {
+        setDownloadProgressPercent(100);
         setDownloadedUpdateVersion(info.version || '최신');
       });
     }
@@ -684,6 +698,40 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Downloading Progress Banner */}
+      {downloadProgressPercent > 0 && downloadProgressPercent < 100 && (
+        <div style={{
+          background: 'linear-gradient(90deg, #0284c7, #0369a1)',
+          color: '#ffffff',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          zIndex: 99999
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>⏳ 웹브라우저 없이 최신 버전 패치를 앱 내부에서 백그라운드 다운로드 중입니다... ({downloadProgressPercent}%)</span>
+          </div>
+          <div style={{
+            width: '120px',
+            height: '8px',
+            backgroundColor: 'rgba(255,255,255,0.3)',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${downloadProgressPercent}%`,
+              height: '100%',
+              backgroundColor: '#ffffff',
+              transition: 'width 0.2s'
+            }} />
+          </div>
+        </div>
+      )}
+
       {/* Downloaded Update 1-Click Auto Install Banner */}
       {downloadedUpdateVersion && (
         <div style={{

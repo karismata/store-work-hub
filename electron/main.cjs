@@ -64,23 +64,20 @@ function createWindow() {
 
       autoUpdater.on('update-available', (info) => {
         win.webContents.send('update-available', info);
-        dialog.showMessageBox(win, {
-          type: 'info',
-          title: '🚀 새 버전 업데이트 감지',
-          message: `새로운 최신 기능 버전(v${info.version})이 출시되었습니다!`,
-          detail: '최신 패치를 자동으로 다운로드 중입니다. 완료 시 자동으로 교체 재시작 안내창이 나타납니다.',
-          buttons: ['확인']
-        });
+      });
+
+      autoUpdater.on('download-progress', (progressObj) => {
+        win.webContents.send('download-progress', progressObj);
       });
 
       autoUpdater.on('update-downloaded', (info) => {
         win.webContents.send('update-downloaded', info);
         dialog.showMessageBox(win, {
           type: 'question',
-          title: '🎉 업데이트 다운로드 완료',
-          message: `최신 버전(v${info.version}) 다운로드가 완료되었습니다.`,
-          detail: '지금 즉시 재시작하여 1초 만에 최신 버전으로 자동 업데이트하시겠습니까?',
-          buttons: ['지금 즉시 재시작하여 적용', '나중에 적용']
+          title: '🎉 업데이트 준비 완료',
+          message: `최신 버전(v${info.version}) 패치가 무인 다운로드 완료되었습니다.`,
+          detail: '지금 1초 만에 앱을 자동 교체 재시작하시겠습니까?',
+          buttons: ['지금 즉시 자동 재시작하여 적용', '나중에 적용']
         }).then((result) => {
           if (result.response === 0) {
             autoUpdater.quitAndInstall(false, true);
