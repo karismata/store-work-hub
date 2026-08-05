@@ -516,17 +516,14 @@ export default function ChatWorkspace({
             </div>
 
             {/* Bottom Chat Input Bar */}
-            <div 
-              onClick={() => inputRef.current?.focus()}
-              style={{
-                padding: '10px 16px',
-                borderTop: '1px solid var(--border-color)',
-                backgroundColor: 'var(--bg-sidebar)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px'
-              }}
-            >
+            <div style={{
+              padding: '10px 16px',
+              borderTop: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-sidebar)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
               {/* Non-blocking Warning Banner replacing native alert */}
               {warningBanner && (
                 <div style={{
@@ -560,7 +557,6 @@ export default function ChatWorkspace({
                       setHasSearchedStore(false);
                       setStoreSearchInput('');
                     }
-                    setTimeout(() => inputRef.current?.focus(), 30);
                   }}
                   style={{ padding: '3px 8px', fontSize: '11px', whiteSpace: 'nowrap' }}
                 >
@@ -575,6 +571,8 @@ export default function ChatWorkspace({
                       style={{ padding: '2px 6px', fontSize: '11px', width: '135px', height: '26px' }}
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
                       <option value="POS 메뉴추가/수정">POS 메뉴추가/수정</option>
                       <option value="단말기/VAN 장애">단말기/VAN 장애</option>
@@ -599,6 +597,8 @@ export default function ChatWorkspace({
                               setStoreSearchInput(e.target.value);
                               setHasSearchedStore(false);
                             }}
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
                           />
                           <button 
                             type="submit" 

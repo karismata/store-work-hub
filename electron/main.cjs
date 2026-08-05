@@ -83,6 +83,10 @@ function createWindow() {
         win.webContents.send('update-available', info);
       });
 
+      autoUpdater.on('update-not-available', (info) => {
+        win.webContents.send('update-not-available', info);
+      });
+
       autoUpdater.on('download-progress', (progressObj) => {
         win.webContents.send('download-progress', progressObj);
       });

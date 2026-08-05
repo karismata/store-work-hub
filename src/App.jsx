@@ -166,7 +166,7 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
-  const CURRENT_APP_VERSION = '1.1.4';
+  const CURRENT_APP_VERSION = '1.1.5';
   const [updateAvailableInfo, setUpdateAvailableInfo] = useState(null);
   const [downloadedUpdateVersion, setDownloadedUpdateVersion] = useState(null);
   const [downloadProgressPercent, setDownloadProgressPercent] = useState(0);
@@ -174,7 +174,6 @@ export default function App() {
   const handleManualUpdateCheck = async () => {
     if (window.electronAPI) {
       try {
-        setDownloadProgressPercent(1);
         await window.electronAPI.checkForUpdate();
       } catch (e) {
         console.warn('Electron updater check note:', e);
@@ -203,6 +202,15 @@ export default function App() {
 
   useEffect(() => {
     if (window.electronAPI) {
+      window.electronAPI.onUpdateAvailable((info) => {
+        setDownloadProgressPercent(1);
+      });
+
+      window.electronAPI.onUpdateNotAvailable(() => {
+        setDownloadProgressPercent(0);
+        alert(`✅ 현재 사용 중인 버전(v${CURRENT_APP_VERSION})이 최신 버전입니다.`);
+      });
+
       window.electronAPI.onDownloadProgress((progressObj) => {
         if (progressObj && progressObj.percent) {
           setDownloadProgressPercent(Math.round(progressObj.percent));
